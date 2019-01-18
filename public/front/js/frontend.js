@@ -3,9 +3,9 @@ $(() => {
     const addTask = $('.new-todo');
     const mainSection = $('.main');         // if tasks 0, display: none;
     const tasksFooter = $('.footer');       // if tasks 0, display: none;
-    const toggleAll = $('#toggle-all');     // show/hide tasks
-    const ul = $('.todo-list');             // show/hide tasks
+    const ul = $('.todo-list');             // show/hide tasks & full list
     const count = $('.todo-count strong');  // counter of uncompleted tasks
+    // let toggleAll = null;               // toggleAll will working, if 'il' in 'ul' > 0
 
     //--- Functions
     const countTasks = (allLi) => {         // + showHideMainSection()
@@ -16,10 +16,10 @@ $(() => {
 
     const showHideMainSection = (allLiLen) => {
         if (allLiLen === 0) {
-            toggleAll.hide();
+            mainSection.hide();
             tasksFooter.hide();
         } else {
-            toggleAll.show();
+            mainSection.show();
             tasksFooter.show();
         }
     };
@@ -37,7 +37,7 @@ $(() => {
                             <label>${ text }</label>
                             <button class="destroy"></button>
                         </div>
-                        <input class="edit" value=${ text }>
+                        <input class="edit" value="${ text }">
                     </li>`);
 
         ul.append(li);
@@ -47,20 +47,49 @@ $(() => {
     });
 
     //--- Advanced Events
+    /** Completed / Uncompleted task */
     ul.on('click', 'li input.toggle', function() {
-        console.log('klikam input.toogle w li');
+
+        const self = $(this);
+        const thisLi = self.parent().parent();
+
+        if ( self.prop( "checked" ) ) {     // Warunkiem bedzie bool z JSON
+            self.prop('checked', true);
+            thisLi.addClass('completed');   // Zmieniamy wartosc bool na odwrotna z JSON
+        } else {
+            self.prop('checked', false);
+            thisLi.removeClass('completed');
+        }
+
     });
 
-    ul.on('click', 'li label', function() {
-        console.log('klikam label w li', $(this), this);
+    /** Start edit task */
+    ul.on('dblclick', 'li label', function() {
+
+        $(this).parent().parent().addClass('editing');
+
     });
 
+    /** End edit task */
     ul.on('change', 'li input.edit', function() {
-        console.log('Zmiany w trybie edytowania li');
+
+        const thisLi = $(this).parent();
+
+        if ( $(this).val() === '' ) {
+            return alert('Edytowane zadanie nie moze byc puste!');
+        }
+
+        thisLi.find('label').text( $(this).val() );
+        thisLi.removeClass('editing');
+
     });
 
+    /** Remove task */
     ul.on('click', 'li button', function() {
-        console.log('klikam btn w li');
+
+        $(this).parent().parent().remove();
+        countTasks( ul.find('li') );
+
     });
 
 });
