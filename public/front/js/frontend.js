@@ -5,6 +5,7 @@ $(() => {
     const tasksFooter = $('.footer');       // if tasks 0, display: none;
     const ul = $('.todo-list');             // show/hide tasks & full list
     const count = $('.todo-count strong');  // counter of uncompleted tasks
+    const clearCompleted = $('button.clear-completed');
     // let toggleAll = null;               // toggleAll will working, if 'il' in 'ul' > 0
 
     //--- Functions
@@ -51,14 +52,14 @@ $(() => {
     ul.on('click', 'li input.toggle', function() {
 
         const self = $(this);
-        const thisLi = self.parent().parent();
+        const toggleCompleted = self.parent().parent().toggleClass('completed');
 
         if ( self.prop( "checked" ) ) {     // Warunkiem bedzie bool z JSON
             self.prop('checked', true);
-            thisLi.addClass('completed');   // Zmieniamy wartosc bool na odwrotna z JSON
+            toggleCompleted;                // Zmieniamy wartosc bool na odwrotna z JSON
         } else {
             self.prop('checked', false);
-            thisLi.removeClass('completed');
+            toggleCompleted;
         }
 
     });
@@ -88,6 +89,18 @@ $(() => {
     ul.on('click', 'li button', function() {
 
         $(this).parent().parent().remove();
+        countTasks( ul.find('li') );
+
+    });
+
+    /** Remove all completed */
+    clearCompleted.on('click', function () {
+
+        // const list = ul.find('li');
+        // w jQ nie ma .forEach() dla tej pseudotablicy ... tylko .each()
+
+        /** Very simple kod without REST API - ul.find('li.completed').remove() */
+        ul.find('li.completed').remove();
         countTasks( ul.find('li') );
 
     });
