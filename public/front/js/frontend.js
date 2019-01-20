@@ -9,7 +9,54 @@ $(() => {
     // let toggleAll = null;               // toggleAll will working, if 'il' in 'ul' > 0
 
     //--- Functions
-    const countTasks = (allLi) => {         // + showHideMainSection()
+    const renderList = () => {
+
+        $.ajax({
+            url: '/list',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'GET',
+            dataType: 'json'
+        }).done( ans => {
+            console.log('Odpowiedz z backendu: ' + ans);
+
+            JSON.parse(ans).forEach( ({ name, complete }) => {
+
+                let li;
+
+                if ( complete ) {
+                    li = $(`<li class="completed">
+                                <div class="view">
+                                    <input class="toggle" type="checkbox" checked>
+                                    <label>${ name }</label>
+                                    <button class="destroy"></button>
+                                </div>
+                                <input class="edit" value="${ name }">
+                            </li>`);
+                } else {
+                    li = $(`<li>
+                                <div class="view">
+                                    <input class="toggle" type="checkbox">
+                                    <label>${ name }</label>
+                                    <button class="destroy"></button>
+                                </div>
+                                <input class="edit" value="${ name }">
+                            </li>`);
+                }
+
+                ul.append(li);
+                countTasks(ul.find('li'));
+
+            });
+        }).fail( err => {
+            console.log(`Nie udalo sie odczytac db.json z backendu ${err}`);
+            console.log(err);
+        });
+
+    };
+
+    const countTasks = (allLi) => {         // showHideMainSection() inside
         let len = allLi.length;
         count.html(len);
         showHideMainSection(len);
@@ -26,7 +73,7 @@ $(() => {
     };
 
     //--- Start App
-    countTasks(ul.find('li'));
+    renderList();                           // countTasks() & showHideMainSection() inside
 
     //--- Events
     addTask.on('change', function() {       // ES5 function() {} for working $(this)
