@@ -1,14 +1,1 @@
-[
-  {
-    "name": "Zadanie 1",
-    "complete": false
-  },
-  {
-    "name": "Zadanie 2",
-    "complete": false
-  },
-  {
-    "name": "Zadanie 3",
-    "complete": true
-  }
-]
+[{"name":"Zadanie 1","complete":false},{"name":"Zadanie 2","complete":false},{"name":"Zadanie 3","complete":true}]

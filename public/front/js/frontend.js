@@ -19,14 +19,26 @@ $(() => {
             type: 'GET',
             dataType: 'json'
         }).done( ans => {
+
             console.log('Odpowiedz z backendu: ' + ans);
+            renderLiFromJson(ans);          // Render new list with li and counter
 
-            JSON.parse(ans).forEach( ({ name, complete }) => {
+        }).fail( err => {
+            console.log(`Nie udalo sie odczytac db.json z backendu ${err}`);
+            console.log(err);
+        });
 
-                let li;
+    };
 
-                if ( complete ) {
-                    li = $(`<li class="completed">
+    const renderLiFromJson = (jsonFromAjax) => {     // countTasks() inside
+
+        ul.find('li').remove();
+
+        JSON.parse(jsonFromAjax).forEach( ({ name, complete }) => {
+
+            let li;
+            if ( complete ) {
+                li = $(`<li class="completed">
                                 <div class="view">
                                     <input class="toggle" type="checkbox" checked>
                                     <label>${ name }</label>
@@ -34,8 +46,8 @@ $(() => {
                                 </div>
                                 <input class="edit" value="${ name }">
                             </li>`);
-                } else {
-                    li = $(`<li>
+            } else {
+                li = $(`<li>
                                 <div class="view">
                                     <input class="toggle" type="checkbox">
                                     <label>${ name }</label>
@@ -43,17 +55,11 @@ $(() => {
                                 </div>
                                 <input class="edit" value="${ name }">
                             </li>`);
-                }
+            }
 
-                ul.append(li);
-                countTasks(ul.find('li'));
-
-            });
-        }).fail( err => {
-            console.log(`Nie udalo sie odczytac db.json z backendu ${err}`);
-            console.log(err);
+            ul.append(li);
+            countTasks(ul.find('li'));
         });
-
     };
 
     const countTasks = (allLi) => {         // showHideMainSection() inside
@@ -76,21 +82,30 @@ $(() => {
     renderList();                           // countTasks() & showHideMainSection() inside
 
     //--- Events
+    /** Add new task */
     addTask.on('change', function() {       // ES5 function() {} for working $(this)
 
         let text = addTask.val();
-        let li = $(`<li>
-                        <div class="view">
-                            <input class="toggle" type="checkbox">
-                            <label>${ text }</label>
-                            <button class="destroy"></button>
-                        </div>
-                        <input class="edit" value="${ text }">
-                    </li>`);
+        let addNewTask = {
+            name: text,
+            complete: false
+        };
 
-        ul.append(li);
-        addTask.val('');
-        countTasks( ul.find('li') );
+        $.ajax({
+            url: '/add',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(addNewTask),
+        }).then( ans => {
+
+            console.log(ans);
+            renderLiFromJson(ans);
+            addTask.val('');
+
+        });
 
     });
 

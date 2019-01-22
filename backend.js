@@ -38,6 +38,35 @@ app.get('/list', (req, res) => {
 
 });
 
+app.post('/add', (req, res) => {
+
+    const { name, complete } = req.body;
+
+    fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {
+
+        if (!err) {
+            let fromJson = JSON.parse(data);
+            fromJson.push({ name, complete });
+            let toJson = JSON.stringify(fromJson);
+
+            fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
+
+                if (!err) {
+                    res.json(toJson);
+                } else {
+                    console.log('Blad zapisu do pliku db.json', err);
+                    res.send(err);
+                }
+            });
+
+        } else {
+            console.log('Blad odczytu pliku db.json', err);
+            res.send(err);
+        }
+    });
+
+});
+
 app.get('/list/:id', (req, res) => {
 
     fs.readFile(DB_TASKS_LIST, (err, data) => {
