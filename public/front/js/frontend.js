@@ -34,11 +34,11 @@ $(() => {
 
         ul.find('li').remove();
 
-        JSON.parse(jsonFromAjax).forEach( ({ name, complete }) => {
+        JSON.parse(jsonFromAjax).forEach( ({ name, complete }, index) => {
 
             let li;
             if ( complete ) {
-                li = $(`<li class="completed">
+                li = $(`<li class="completed" data-id="${ index }">
                                 <div class="view">
                                     <input class="toggle" type="checkbox" checked>
                                     <label>${ name }</label>
@@ -47,7 +47,7 @@ $(() => {
                                 <input class="edit" value="${ name }">
                             </li>`);
             } else {
-                li = $(`<li>
+                li = $(`<li data-id="${ index }">
                                 <div class="view">
                                     <input class="toggle" type="checkbox">
                                     <label>${ name }</label>
@@ -101,7 +101,6 @@ $(() => {
             data: JSON.stringify(addNewTask),
         }).then( ans => {
 
-            console.log(ans);
             renderLiFromJson(ans);
             addTask.val('');
 
@@ -150,8 +149,20 @@ $(() => {
     /** Remove task */
     ul.on('click', 'li button', function() {
 
-        $(this).parent().parent().remove();
-        countTasks( ul.find('li') );
+        const id = $(this).parent().parent().data('id');
+
+        $.ajax({
+            url: `/delete/${id}`,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'DELETE',
+            dataType: 'json'
+        }).then( ans => {
+
+            renderLiFromJson(ans);
+
+        });
 
     });
 

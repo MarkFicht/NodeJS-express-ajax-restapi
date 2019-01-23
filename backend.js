@@ -24,6 +24,20 @@ app.get('/test', (req, res) => {
 
 });
 
+app.get('/test/:id', (req, res) => {
+
+    fs.readFile(DB_TASKS_LIST, (err, data) => {
+
+        if (!err) {
+            res.send( JSON.parse(data)[ parseInt(req.params.id) ] );
+        } else {
+            res.send(err);
+        }
+
+    });
+
+});
+
 app.get('/list', (req, res) => {
 
     fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {     // Bez utf8 - Przesyla buffer do fronta
@@ -38,6 +52,7 @@ app.get('/list', (req, res) => {
 
 });
 
+//---
 app.post('/add', (req, res) => {
 
     const { name, complete } = req.body;
@@ -67,17 +82,32 @@ app.post('/add', (req, res) => {
 
 });
 
-app.get('/list/:id', (req, res) => {
+app.delete('/delete/:id', (req, res) => {
 
-    fs.readFile(DB_TASKS_LIST, (err, data) => {
+    const id = parseInt(req.params.id);
+
+    fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {
 
         if (!err) {
-            res.send(JSON.parse(data)[req.params.id]);
+            let fromJson = JSON.parse(data);
+            fromJson.splice(id, 1);
+            let toJson = JSON.stringify(fromJson);
+
+            fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
+
+                if (!err) {
+                    res.json(toJson);
+                } else {
+                    console.log('Blad zapisu do pliku db.json', err);
+                    res.send(err);
+                }
+            });
+
         } else {
+            console.log('Blad odczytu pliku db.json', err);
             res.send(err);
         }
-
-    });
+    })
 
 });
 
