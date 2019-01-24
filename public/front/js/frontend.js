@@ -112,12 +112,29 @@ $(() => {
     /** Completed / Uncompleted task */
     ul.on('click', 'li input.toggle', function() {
 
+        const id = $(this).parent().parent().data('id');
+
+        $.ajax({
+            url: `/list/change/${id}`,
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'POST'
+        }).then( ans => {
+
+            /** Wersja z renderowaniem nowej listy */
+            // renderLiFromJson(ans);
+
+        });
+
+        /** Wersja bez renderowania listy na nowo */
         const self = $(this);
         const toggleCompleted = self.parent().parent().toggleClass('completed');
 
-        if ( self.prop( "checked" ) ) {     // Warunkiem bedzie bool z JSON
+        if ( self.prop( "checked" ) ) {
             self.prop('checked', true);
-            toggleCompleted;                // Zmieniamy wartosc bool na odwrotna z JSON
+            toggleCompleted;
         } else {
             self.prop('checked', false);
             toggleCompleted;

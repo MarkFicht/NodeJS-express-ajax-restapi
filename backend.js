@@ -82,6 +82,35 @@ app.post('/add', (req, res) => {
 
 });
 
+app.post('/list/change/:id', (req, res) => {
+
+    const id = parseInt(req.params.id);
+
+    fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {
+
+        if (!err) {
+            let fromJson = JSON.parse(data);
+            fromJson[id].complete = !fromJson[id].complete;
+            let toJson = JSON.stringify(fromJson);
+
+            fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
+
+                if (!err) {
+                    res.json(toJson);
+                } else {
+                    console.log('Blad zapisu do pliku db.json', err);
+                    res.send(err);
+                }
+            });
+
+        } else {
+            console.log('Blad odczytu pliku db.json', err);
+            res.send(err);
+        }
+    });
+
+});
+
 app.delete('/delete/:id', (req, res) => {
 
     const id = parseInt(req.params.id);
@@ -107,7 +136,7 @@ app.delete('/delete/:id', (req, res) => {
             console.log('Blad odczytu pliku db.json', err);
             res.send(err);
         }
-    })
+    });
 
 });
 
