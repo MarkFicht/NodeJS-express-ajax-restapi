@@ -82,7 +82,7 @@ app.post('/add', (req, res) => {
 
 });
 
-app.post('/list/change/:id', (req, res) => {
+app.post('/list/completed/:id', (req, res) => {
 
     const id = parseInt(req.params.id);
 
@@ -91,6 +91,36 @@ app.post('/list/change/:id', (req, res) => {
         if (!err) {
             let fromJson = JSON.parse(data);
             fromJson[id].complete = !fromJson[id].complete;
+            let toJson = JSON.stringify(fromJson);
+
+            fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
+
+                if (!err) {
+                    res.json(toJson);
+                } else {
+                    console.log('Blad zapisu do pliku db.json', err);
+                    res.send(err);
+                }
+            });
+
+        } else {
+            console.log('Blad odczytu pliku db.json', err);
+            res.send(err);
+        }
+    });
+
+});
+
+app.post('/list/edit/:id', (req, res) => {
+
+    const id = parseInt(req.params.id);
+    const { text } = req.body;
+
+    fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {
+
+        if (!err) {
+            let fromJson = JSON.parse(data);
+            fromJson[id].name = text;
             let toJson = JSON.stringify(fromJson);
 
             fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {

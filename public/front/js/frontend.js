@@ -115,7 +115,7 @@ $(() => {
         const id = $(this).parent().parent().data('id');
 
         $.ajax({
-            url: `/list/change/${id}`,
+            url: `/list/completed/${id}`,
             dataType: 'json',
             headers: {
                 'Content-Type': 'application/json'
@@ -153,13 +153,28 @@ $(() => {
     ul.on('change', 'li input.edit', function() {
 
         const thisLi = $(this).parent();
+        const id = thisLi.data('id');
+        const text = $(this).val();
 
-        if ( $(this).val() === '' ) {
+        if ( text === '' ) {
             return alert('Edytowane zadanie nie moze byc puste!');
         }
 
-        thisLi.find('label').text( $(this).val() );
-        thisLi.removeClass('editing');
+        $.ajax({
+            url: `/list/edit/${id}`,
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            type: 'POST',
+            data: JSON.stringify({
+                text
+            })
+        }).then( ans => {
+
+            renderLiFromJson(ans);
+
+        });
 
     });
 
