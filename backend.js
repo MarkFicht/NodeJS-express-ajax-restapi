@@ -82,7 +82,7 @@ app.post('/add', (req, res) => {
 
 });
 
-app.post('/list/completed/:id', (req, res) => {
+app.put('/list/completed/:id', (req, res) => {
 
     const id = parseInt(req.params.id);
 
@@ -111,7 +111,7 @@ app.post('/list/completed/:id', (req, res) => {
 
 });
 
-app.post('/list/edit/:id', (req, res) => {
+app.put('/list/edit/:id', (req, res) => {
 
     const id = parseInt(req.params.id);
     const { text } = req.body;
@@ -151,6 +151,43 @@ app.delete('/delete/:id', (req, res) => {
             let fromJson = JSON.parse(data);
             fromJson.splice(id, 1);
             let toJson = JSON.stringify(fromJson);
+
+            fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
+
+                if (!err) {
+                    res.json(toJson);
+                } else {
+                    console.log('Blad zapisu do pliku db.json', err);
+                    res.send(err);
+                }
+            });
+
+        } else {
+            console.log('Blad odczytu pliku db.json', err);
+            res.send(err);
+        }
+    });
+
+});
+
+app.put('/delete/completed', (req, res) => {
+
+    let newDB = [];
+
+    fs.readFile(DB_TASKS_LIST, 'utf8', (err, data) => {
+
+        if (!err) {
+            let fromJson = JSON.parse(data);
+            fromJson.forEach( (val) => {
+
+                if (val.complete === false) {
+                    return newDB.push(val);
+                } else {
+                    return null
+                }
+
+            });
+            let toJson = JSON.stringify(newDB);
 
             fs.writeFile(DB_TASKS_LIST, toJson, (err, data) => {
 

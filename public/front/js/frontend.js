@@ -34,6 +34,10 @@ $(() => {
 
         ul.find('li').remove();
 
+        if (JSON.parse(jsonFromAjax).length === 0) {
+            return countTasks(ul.find('li'));
+        }
+
         JSON.parse(jsonFromAjax).forEach( ({ name, complete }, index) => {
 
             let li;
@@ -64,7 +68,7 @@ $(() => {
 
     const countTasks = (allLi) => {         // showHideMainSection() inside
         let len = allLi.length;
-        count.html(len);
+        count.text(len);
         showHideMainSection(len);
     };
 
@@ -101,6 +105,7 @@ $(() => {
             data: JSON.stringify(addNewTask),
         }).then( ans => {
 
+            console.log('Odpowiedz z backendu - POST: ' + ans);
             renderLiFromJson(ans);
             addTask.val('');
 
@@ -120,10 +125,11 @@ $(() => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            type: 'POST'
+            type: 'PUT'
         }).then( ans => {
 
             /** Wersja z renderowaniem nowej listy */
+            console.log('Odpowiedz z backendu - PUT: ' + ans);
             // renderLiFromJson(ans);
 
         });
@@ -166,12 +172,13 @@ $(() => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            type: 'POST',
+            type: 'PUT',
             data: JSON.stringify({
                 text
             })
         }).then( ans => {
 
+            console.log('Odpowiedz z backendu - PUT: ' + ans);
             renderLiFromJson(ans);
 
         });
@@ -192,6 +199,7 @@ $(() => {
             dataType: 'json'
         }).then( ans => {
 
+            console.log('Odpowiedz z backendu - DELETE: ' + ans);
             renderLiFromJson(ans);
 
         });
@@ -201,12 +209,19 @@ $(() => {
     /** Remove all completed */
     clearCompleted.on('click', function () {
 
-        // const list = ul.find('li');
-        // w jQ nie ma .forEach() dla tej pseudotablicy ... tylko .each()
+        $.ajax({
+            url: '/delete/completed',
+            type: 'PUT',
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then( ans => {
 
-        /** Very simple kod without REST API - ul.find('li.completed').remove() */
-        ul.find('li.completed').remove();
-        countTasks( ul.find('li') );
+            console.log('Odpowiedz z backendu - PUT: ' + ans);
+            renderLiFromJson(ans);
+
+        });
 
     });
 
